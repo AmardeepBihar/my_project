@@ -1,0 +1,123 @@
+{% extends 'header&footer/base.html' %}
+{% block title %}Sub-Categories for Practice | {% endblock %}
+{% block headblock %}
+<style>
+  #rand-question {
+    color: #2E8B57;
+    margin-left: 30px;
+    transition: color 0.3s ease-in-out;
+  }
+
+  #rand-question:hover {
+    color: rgb(246, 186, 97);
+  }
+
+  #bottom_text {
+    background-color: #2E8B57;
+    border-radius: 4px;
+    padding: 3px;
+    color: white;
+    font-size: 12px;
+  }
+
+  .card {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+    transition: transform 0.3s ease-in-out;
+    height: 250px;
+    background-color: rgb(246, 198, 126);
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+  }
+
+  .card-body {
+    padding: 25px;
+  }
+
+  .card-title,
+  .card-text {
+    font-size: 20px;
+  }
+
+  .form-control {
+    border: 2px solid #2E8B57;
+  }
+
+  hr {
+    border: 3px solid black;
+  }
+
+  @media (max-width: 576px) {
+    .card-title {
+      font-size: 25px;
+    }
+
+    .card-text {
+      font-size: 16px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+
+  <!-- Header Section with Random Question Link -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pt-5">
+    <h3><strong>Available Sub Categories for Practice</strong></h3>
+    <div class="d-flex align-items-center">
+      <p class="mb-0 me-2">We have Total {{ total_question }} Questions for practice</p>
+      <span>|</span>
+      {% if random_question %}
+        <a href="{% url 'ansthequestion' random_question.uid random_question.slug %}" class="text-decoration-none" id="rand-question">
+          <strong>Practice with random question</strong>
+        </a>
+      {% else %}
+        <span class="ms-2" style="font-size: 15px;">No questions available for practice.</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Search Bar -->
+  <form method="POST" class="mb-4">
+    {% csrf_token %}
+    <div class="input-group">
+      <input type="text" name="search" class="form-control" placeholder="Search Sub-categories..." value="{{ search_query }}">
+      <button class="btn btn-success" type="submit">Search</button>
+    </div>
+  </form>
+
+  <!-- Sub-category Display Section -->
+  {% if category_subcategories %}
+    {% for category, subcategories in category_subcategories.items %}
+      {% if subcategories %}
+        <div class="category-section">
+          <div class="row">
+            {% for sub_list in subcategories %}
+              <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
+                <a href="{% url 'sub-category-wise-question' sub_list.slug %}" class="text-decoration-none">
+                  <div class="card">
+                    <div class="card-body d-flex flex-column">
+                      <h5 class="card-title"><b>{{ sub_list.name }}</b></h5>
+                      <hr>
+                      <p class="card-text flex-grow-1" style="font-size: 15px;">{{ sub_list.description }}</p>
+                      <p class="card-text fw-bold mb-1" id="bottom_text">Number of Questions: 20</p>
+                      <p class="card-text fw-bold" id="bottom_text">For each question: 30 Sec</p>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <hr>
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    <h4 class="mx-4">There are no sub-categories available now. We will make them available soon...</h4>
+  {% endif %}
+</div>
+{% endblock %}

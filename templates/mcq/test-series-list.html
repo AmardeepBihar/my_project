@@ -1,0 +1,130 @@
+{% extends 'header&footer/base.html' %}
+{% block title %} All Test Series | {% endblock %}
+{% block content %}
+<head>
+  <!-- Dynamic Meta Tags for SEO -->
+  <meta name="description" content="{% if test_series_list %}{{ test_series_list.0.meta_description }}{% endif %}">
+  <meta name="keywords" content="{% if test_series_list %}{{ test_series_list.0.meta_keywords }}{% endif %}">
+  <style>
+    #rand-question {
+      color: #2E8B57;
+      margin-left: 30px;
+      transition: color 0.3s ease-in-out;
+    }
+
+    #rand-question:hover {
+      color: rgb(246, 186, 97);
+    }
+
+    .form-control {
+      border: 2px solid #2E8B57;
+    }
+
+    .card {
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+      transition: transform 0.3s ease-in-out;
+      height: 250px;
+      background-color: rgb(246, 198, 126);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-body {
+      padding: 25px;
+    }
+
+    .card-title,
+    .card-text {
+      font-size: 20px;
+    }
+
+    .badge {
+      font-size: 12px;
+    }
+
+    hr {
+      border: 3px solid black;
+    }
+
+    @media (max-width: 576px) {
+      .card-title {
+        font-size: 25px;
+      }
+
+      .card-text {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+
+<div class="container-fluid mt-5">
+  <!-- Header Section -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pt-4">
+    <h3><strong>Available Test Series</strong></h3>
+    <div class="d-flex align-items-center">
+      <p class="mb-0 me-2">We have Total {{ total_question }} Questions for practice</p>
+      <span>|</span>
+      {% if random_question %}
+        <a href="{% url 'ansthequestion' random_question.uid random_question.slug %}" class="text-decoration-none" id="rand-question">
+          <strong>Practice with random question</strong>
+        </a>
+      {% else %}
+        <p class="ms-2 mb-0" style="font-size: 15px;">No questions available for practice.</p>
+      {% endif %}
+    </div>
+  </div>
+  <hr>
+
+  <!-- Search Bar -->
+  <form method="POST" class="mb-4">
+    {% csrf_token %}
+    <div class="input-group">
+      <input type="text" name="search" class="form-control" placeholder="Search Test Series..." value="{{ search_query }}">
+      <button class="btn btn-success" type="submit">Search</button>
+    </div>
+  </form>
+
+  <!-- Test Series List -->
+  <div class="row">
+    {% for test_series in test_series_list %}
+      <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
+        <a href="{% url 'purpose-wise-question' test_series.slug %}" class="text-decoration-none">
+          <div class="card">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title"><b>{{ test_series.title }}</b></h5>
+              <hr style="border: 2px black solid;">
+              <p class="card-text flex-grow-1" style="font-size: 15px;">
+                {{ test_series.description|truncatewords:20 }}
+              </p>
+              <div class="d-flex justify-content-between">
+                <span class="badge bg-success">Time: {{ test_series.total_time }} min</span>
+                <span class="badge bg-success">Questions: {{ test_series.questions_count }}</span>
+              </div>
+              <small class="text-muted mt-2"><strong>Created:</strong> {{ test_series.created_at|date:"M d, Y" }}</small>
+            </div>
+          </div>
+        </a>
+      </div>
+    {% empty %}
+      <h4 class="mx-4">No test series found for this search query.</h4>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <div class="text-center mt-4">
+    {% if test_series_list.has_previous %}
+      <a href="?page={{ test_series_list.previous_page_number }}" class="text-decoration-none me-2">&laquo; Previous</a>
+    {% endif %}
+
+    <span class="mx-2">Page {{ test_series_list.number }} of {{ test_series_list.paginator.num_pages }}</span>
+
+    {% if test_series_list.has_next %}
+      <a href="?page={{ test_series_list.next_page_number }}" class="text-decoration-none ms-2">Next &raquo;</a>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'header&footer/base.html' %}
+{% block title %}{{ category.name }} | {% endblock %}
+{% block headblock %}
+<!-- Meta Tags for SEO -->
+<meta name="description" content="{{ blog.meta_description }}">
+<meta name="keywords" content="{{ blog.meta_keyword }}">
+<style>
+    .card {
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.8);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .card:hover {
+        transform: scale(1.03);
+    }
+
+    /* Remove underline and maintain original color */
+    .card a,
+    .card a:hover {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* Style for Card Footer */
+    .card-footer {
+        background-color: #f8f9fa;
+        font-size: 14px;
+        color: #6c757d;
+        padding: 10px 15px;
+    }
+
+    .card-footer p {
+        margin-bottom: 5px;
+    }
+
+    /* Style for Category & Published Date in One Line */
+    .card-footer .info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .divider {
+        border-top: 1px solid #ccc;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-top: 55px;">
+    {% if category %}
+    <div class="m-1">
+        <p class="pt-4 fw-bold" style="color: #2E8B57; font-size: 20px;">Category: {{ category.name }}</p>
+        <hr style="border: 2px solid black;">
+        <div class="row">
+            {% for post in pages %}
+            <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
+                <!-- Entire Card is Clickable -->
+                <a href="{% if post.slug %}{% url 'blog_post_detail' post.slug %}{% else %}#{% endif %}"
+                    class="text-decoration-none">
+                    <div class="card h-100">
+                        <!-- Blog Featured Image -->
+                        <img class="card-img-top"
+                            src="{% if post.featured_image %}{{ post.featured_image.url }}{% else %}https://via.placeholder.com/400x250{% endif %}"
+                            alt="{{ post.title }}"
+                            style="padding: 20px; height: 250px; width: 100%; object-fit: cover; border-radius: 5px;">
+
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            <h5 class="card-title text-dark">{{ post.title }}</h5>
+                            <hr>
+                            <p class="card-text text-dark">
+                                {{ post.content|safe|truncatewords:15 }}
+                            </p>
+                            <p class="text-muted">Published: {{ post.created_at|timesince }} ago</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <h4>No blog posts available for "{{ category.name }}"</h4>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Pagination Section -->
+    <div class="text-center">
+        {% if pages.has_previous %}
+        <a href="?page={{ pages.previous_page_number }}" class="text-decoration-none">&lt;&lt;</a>
+        {% endif %}
+        | {{ pages.number }} of {{ pages.paginator.num_pages }} Pages |
+        {% if pages.has_next %}
+        <a href="?page={{ pages.next_page_number }}" class="text-decoration-none">&gt;&gt;</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

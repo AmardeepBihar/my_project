@@ -1,0 +1,123 @@
+{% extends 'header&footer/base.html' %}
+{% block content %}
+<title>Blog Posts List</title>
+
+<style>
+    .card {
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.8);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .card:hover {
+        transform: scale(1.03);
+    }
+
+    .carousel-item img {
+        height: 400px;
+        width: 100%;
+        object-fit: cover;
+        border-radius: 5px;
+        filter: brightness(0.5);
+    }
+</style>
+
+<div class="mx-1 mt-5">
+    <!-- Slides of the blog -->
+    <div id="carouselExampleCaptions" class="carousel slide mb-4" data-bs-ride="carousel">
+
+        <!-- Carousel Indicators -->
+        <div class="carousel-indicators">
+            {% for slide in slides %}
+            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="{{ forloop.counter0 }}"
+                class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}"
+                aria-label="Slide {{ forloop.counter }}"></button>
+            {% endfor %}
+        </div>
+
+        <!-- Carousel Inner -->
+        <div class="carousel-inner">
+            {% for slide in slides %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <a href="{% url 'blog_post_detail' slide.slug %}">
+                    {% if slide.featured_image %}
+                    <img src="{{ slide.featured_image.url }}" class="d-block w-100 m-1" alt="{{ slide.title }}">
+                    {% else %}
+                    <div class="d-block w-100" style="height: 400px; background-color: #333;"></div>
+                    {% endif %}
+                </a>
+                <div class="carousel-caption d-block">
+                    <h1>
+                        <a href="{% url 'blog_post_detail' slide.slug %}" class="text-decoration-none text-white">
+                            {{ slide.title }}
+                        </a>
+                    </h1>
+                    <hr style="border: 2px solid white;">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Carousel Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions"
+            data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions"
+            data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</div>
+<!-- End of the slides -->
+
+<!-- Start the blog cards section -->
+<div class="row">
+    {% for post in pages %}
+    <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
+        <!-- Entire Card is Clickable -->
+        <a href="{% if post.slug %}{% url 'blog_post_detail' post.slug %}{% else %}#{% endif %}"
+            class="text-decoration-none">
+            <div class="card h-100">
+                <!-- Blog Featured Image -->
+                <img class="card-img-top"
+                    src="{% if post.featured_image %}{{ post.featured_image.url }}{% else %}https://via.placeholder.com/400x250{% endif %}"
+                    alt="{{ post.title }}"
+                    style="padding: 20px; height: 250px; width: 100%; object-fit: cover; border-radius: 5px;">
+
+                <!-- Card Body -->
+                <div class="card-body">
+                    <h5 class="card-title text-dark">{{ post.title }}</h5>
+                    <hr>
+                    <p class="card-text text-dark">
+                        {{ post.content|safe|truncatewords:15 }}
+                    </p>
+                    <p class="text-muted">Published: {{ post.created_at|timesince }} ago</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p>No blog posts available.</p>
+    </div>
+    {% endfor %}
+</div>
+<!-- End of the blog cards section -->
+<br>
+
+<!-- Paginator Section -->
+<div class="text-center mb-3">
+    {% if pages.has_previous %}
+    <a href="?page={{ pages.previous_page_number }}" class="text-decoration-none">&lt;&lt; Previous</a>
+    {% endif %}
+    | Page {{ pages.number }} of {{ pages.paginator.num_pages }} |
+    {% if pages.has_next %}
+    <a href="?page={{ pages.next_page_number }}" class="text-decoration-none">Next &gt;&gt;</a>
+    {% endif %}
+</div>
+<!-- End of paginator -->
+
+{% endblock %}

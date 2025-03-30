@@ -1,0 +1,240 @@
+{% extends 'header&footer/base.html' %}
+{% block title %}Test Result | {% endblock %}
+{% block content %}
+<head>
+    <title>Result of the Practice</title>
+    <style>
+        .watermark {
+            font-size: 30px;
+            color: rgb(214, 210, 210);
+        }
+
+        /* Card Styling */
+        .result-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Result Heading Styling */
+        .result-heading {
+            padding: 10px;
+            text-align: center;
+            font-size: 24px;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .bad {
+            background-color: red;
+            box-shadow: 0 0 20px red;
+        }
+
+        .not-bad {
+            background-color: orange;
+            box-shadow: 0 0 20px orange;
+        }
+
+        .good {
+            background-color: yellow;
+            color: black;
+            box-shadow: 0 0 20px yellow;
+        }
+
+        .very-good {
+            background-color: lightgreen;
+            box-shadow: 0 0 20px lightgreen;
+        }
+
+        .excellent {
+            background-color: green;
+            box-shadow: 0 0 20px green;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+            }
+
+            .watermark {
+                display: none;
+            }
+
+            .result-heading {
+                box-shadow: none;
+            }
+
+            .result-card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                padding: 20px;
+            }
+
+            #printBtn {
+                display: none;
+            }
+
+            .bad {
+                background-color: rgb(246, 59, 59) !important;
+                box-shadow: 0 0 20px rgb(246, 59, 59) !important;
+            }
+
+            .not-bad {
+                background-color: rgb(238, 165, 30) !important;
+                box-shadow: 0 0 20px rgb(238, 165, 30) !important;
+            }
+
+            .good {
+                background-color: yellow !important;
+                color: black !important;
+                box-shadow: 0 0 20px yellow !important;
+            }
+
+            .very-good {
+                background-color: lightgreen !important;
+                box-shadow: 0 0 20px lightgreen !important;
+            }
+
+            .excellent {
+                background-color: #198754 !important;
+                box-shadow: 0 0 20px #198754 !important;
+            }
+
+            .bg-light {
+                background-color: #f8f9fa !important;
+            }
+        }
+
+        /* New Alignment for Result Summary */
+        .result-summary {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .result-summary p {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 0;
+        }
+
+        .result-summary p:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <!-- Print Button (outside the card) -->
+        <button id="printBtn" class="btn btn-success mt-3 me-3" style="float: right;">
+            <i class="fas fa-print me-2"></i> Print Score
+        </button>
+
+        <!-- Start of Result Card -->
+        <div class="container-fluid pt-2" style="margin-top: 60px; margin-bottom: 10px;" id="resultTab">
+            <div class="result-card mx-auto" style="max-width: 700px;">
+                <div class="watermark fw-bold">CRAMPT</div>
+                <h3 class="text-center py-4"><strong>Your Result</strong></h3>
+
+                <!-- Display total questions attempted -->
+                <div class="mx-auto" style="max-width: 600px;">
+                    <!-- Result Heading based on score -->
+                    <div class="result-heading 
+                        {% if percentage < 30 %}bad{% elif percentage >= 30 and percentage < 40 %}not-bad{% elif percentage >= 40 and percentage < 60 %}good{% elif percentage >= 60 and percentage < 70 %}very-good{% else %}excellent{% endif %}">
+                        {% if percentage < 30 %} Bad {% elif percentage >= 30 and percentage < 40 %} Not Bad {% elif percentage >= 40 and percentage < 60 %} Good {% elif percentage >= 60 and percentage < 70 %} Very Good {% else %} Excellent {% endif %}
+                    </div>
+
+                    <hr style="border: 2px solid black;">
+
+                    <!-- Results Summary with Consistent Margins -->
+                    <div class="result-summary">
+                        <p>
+                            <strong>Total Questions Attempted:</strong>
+                            <span>{{ attempted }}</span>
+                        </p>
+                        <p>
+                            <strong>Correct Answers:</strong>
+                            <span>{{ correct }}</span>
+                        </p>
+                        <p>
+                            <strong>Incorrect Answers:</strong>
+                            <span>{{ incorrect }}</span>
+                        </p>
+                        <p>
+                            <strong>Score:</strong>
+                            <span>{{ percentage|floatformat:2 }}%</span>
+                        </p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-4 text-center">
+                        <a href="{% url 'ansthequestion' next_question.uid next_question.slug %}" class="mb-3 form-control p-2 btn btn-success">
+                            <i class="fas fa-redo-alt me-2"></i> Start New Practice
+                        </a>
+                        <a href="{% url 'test-series' %}" class="form-control p-2 btn btn-success">
+                            <i class="fas fa-list-ul me-2"></i> Test Series
+                        </a>
+                    </div>
+                </div>
+
+                <div class="watermark text-end fw-bold mt-5">CRAMPT</div>
+            </div>
+        </div>
+
+        <!-- JavaScript for Print Functionality -->
+        <script>
+            document.getElementById('printBtn').addEventListener('click', function () {
+                const printWindow = window.open('', '', 'height=600,width=800');
+                const resultTabContent = document.getElementById('resultTab').innerHTML;
+
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <style>
+                                body { font-family: Arial, sans-serif; margin: 20px; }
+                                .watermark { display: none; }
+                                .result-heading { box-shadow: none; padding: 10px; }
+                                .result-card {
+                                    box-shadow: none;
+                                    border: 1px solid #ccc;
+                                    padding: 20px;
+                                    max-width: 700px;
+                                    margin: auto;
+                                }
+                                .result-summary p {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    padding: 8px 0;
+                                    border-bottom: 1px solid #dee2e6;
+                                }
+                                .result-summary p:last-child {
+                                    border-bottom: none;
+                                }
+                                .bad { background-color: red !important; box-shadow: 0 0 20px red !important; }
+                                .not-bad { background-color: orange !important; box-shadow: 0 0 20px orange !important; }
+                                .good { background-color: yellow !important; color: black !important; box-shadow: 0 0 20px yellow !important; }
+                                .very-good { background-color: lightgreen !important; box-shadow: 0 0 20px lightgreen !important; }
+                                .excellent { background-color: green !important; box-shadow: 0 0 20px green !important; }
+                            </style>
+                        </head>
+                        <body>
+                            ${resultTabContent}
+                        </body>
+                    </html>
+                `);
+
+                printWindow.document.close();
+                printWindow.print();
+            });
+        </script>
+    </div>
+</body>
+{% endblock %}
