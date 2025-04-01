@@ -32,9 +32,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 SECRET_KEY = 'django-insecure-@35s&45e+78zd1ga$)j8qb=ck77q@ype!8$8ip^^i=4s7a0lya'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['crampt.in']
 
 # Define the default site ID
 SITE_ID = 1
